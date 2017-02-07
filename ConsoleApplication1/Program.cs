@@ -47,7 +47,7 @@ namespace ConsoleApplication1
                 Console.WriteLine("1. Go to account funds");
                 Console.WriteLine("2. Go to account balance");
                 Console.WriteLine("3. Go to Portfolio");
-                Console.WriteLine("4. Buy a stock");
+                Console.WriteLine("4. Buy/sell a stock");
                 Console.WriteLine("5. Create Portfolio");
                 Console.WriteLine("6. Delete Portfolio");
                 Console.WriteLine("7. Simulate an event");
@@ -354,6 +354,7 @@ namespace ConsoleApplication1
                         p.UpdateStock(s, s.Price);
                     }
                 }
+                account.UpdateCash();
             }
             else
             {
@@ -389,9 +390,10 @@ namespace ConsoleApplication1
                 Console.WriteLine("Invalid Portfolio");
                 return;
             }
-            Console.WriteLine("Either:");
-            Console.WriteLine("1. Enter the number of stocks to purchase");
-            Console.WriteLine("2. Enter the amount in dollars to purchase stock represented by ticker");
+            Console.WriteLine("Please choose:");
+            Console.WriteLine("1. Buy stocks based on number");
+            Console.WriteLine("2. Buy stocks based on the dollar");
+            Console.WriteLine("3. Sell stocks");
             answer = Console.ReadLine();
             if(answer == "1")
             {
@@ -484,6 +486,16 @@ namespace ConsoleApplication1
                 p.BuyValue(amount, s, out spent);
                 account.CashBalance -= spent;
                 account.UpdateCash();
+            }
+            else if(answer == "3")
+            {
+                bool valid = false;
+                while (!valid)
+                {
+                    Console.Write("Please enter the ticker you want to sell: ");
+                    answer = Console.ReadLine();
+
+                }
             }
         }
         /// <summary>

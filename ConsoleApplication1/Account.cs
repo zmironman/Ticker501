@@ -15,6 +15,7 @@ namespace ConsoleApplication1
         private double _cashBalance;
         private double _stockBalance;
         private double _totalBalance;
+        private double _startingBalance;
         private Portfolio current = new Portfolio(null);
         public IList<Portfolio> portfolios = new List<Portfolio>();
 
@@ -25,6 +26,7 @@ namespace ConsoleApplication1
         public Account(double b)
         {
             _totalBalance = b;
+            _startingBalance = b;
             _cashBalance = b;
             _stockBalance = 0;
         }
@@ -275,7 +277,5 @@ namespace ConsoleApplication1
             }
             _totalBalance = _stockBalance + _cashBalance;
         }
-
-        
     }
 }
