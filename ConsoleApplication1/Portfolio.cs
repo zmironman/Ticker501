@@ -186,10 +186,12 @@ namespace ConsoleApplication1
         /// <param name="total"></param>
         public void CheckBal(double total)
         {
-            double percentage = _balance / total;
+            UpdateBalance();
+            double percentage = _balance / total * 100;
             Console.WriteLine("Portfolio: " + Name);
-            Console.WriteLine("Total Investment: $" + _balance);
+            Console.WriteLine("Total Investment: $" + _balance.ToString("F"));
             Console.WriteLine("Percentage of account: " + percentage + "%");
+            Console.WriteLine();
           
         }
 
@@ -199,9 +201,16 @@ namespace ConsoleApplication1
         public void CheckPosBal()
         {
             Console.WriteLine("In your portfolio '" + Name + "' you own:");
-            int total = Stocks.Count;
-            Stock prev = null;
-            int count = 0;
+            if (Stocks.Count == 0)
+            {
+                Console.WriteLine("0 stocks");
+                return;
+            }
+
+            UpdateBalance();
+            double total = Stocks.Count;
+            Stock prev = Stocks[0];
+            double count = 0;
             double value = 0;
             foreach (Stock s in Stocks)
             {
@@ -218,14 +227,15 @@ namespace ConsoleApplication1
                 else
                 {
                     Console.WriteLine("$" + value.ToString("F") + " of " + prev.Ticker + " " + prev.Name + " (" + (count / total * 100) + "%)");
-                    count = 0;
-                    value = 0;
+                    count = 1;
+                    value = s.Price;
                     prev = s;
                 }
             }
-            Console.WriteLine("$" + value.ToString("F") + " of " + prev.Ticker + " " + prev.Name + " (" + ((count + 1) / total * 100) + "%)");
+            Console.WriteLine("$" + value.ToString("F") + " of " + prev.Ticker + " " + prev.Name + " (" + (count / total * 100) + "%)");
             count = 0;
             value = 0;
+            Console.WriteLine();
         }
 
         /// <summary>
@@ -273,8 +283,9 @@ namespace ConsoleApplication1
             }
             else
             {
-                Console.WriteLine("You have lost $" + _profit);
+                Console.WriteLine("You have gained $" + _profit);
             }
+            Console.WriteLine();
             return;
         }
     }

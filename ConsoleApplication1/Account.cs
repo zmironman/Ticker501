@@ -127,17 +127,46 @@ namespace ConsoleApplication1
                     _cashBalance = 0;
                     if (current.Name == null)
                     {
-                        Console.WriteLine("You are withdrawing " + over + " more than your cash balance\nWhat stock would you like to sell(use format 'portfolio, ticker'): ");
-                        string entry = Console.ReadLine();
-                        string[] split = entry.Split(',');
-                        current = GetPortfolio(split[0]);
-                        Stock st = current.getStock(split[1]);
-                        if (st == null)
+                        Console.WriteLine("You are withdrawing " + over + " more than your cash balance");
+                        string entry = null;
+                        bool good = false;
+                        while (!good)
                         {
-                            return false;
+                            CheckPosBal();
+                            Console.Write("What portfolio would you like to take from: ");
+                            entry = Console.ReadLine();
+                            if(GetPortfolio(entry).Name != "error")
+                            {
+                                good = true;
+                            }
+                            else
+                            {
+                                Console.WriteLine("Invalid portfolio, please try again");
+                            }
+                        }
+                        current = GetPortfolio(entry);
+                        current.CheckPosBal();
+                        good = false;
+                        Stock st = new Stock(null, null, 0);
+                        while (!good)
+                        {
+                            Console.Write("Please choose a stock ticker to sell: ");
+                            st = current.getStockT(Console.ReadLine());
+                            if (st != null)
+                            {
+                                good = true;
+                            }
+                            else
+                            {
+                                Console.WriteLine("Invalid ticker, please try again.");
+                            }
                         }
                         double a;
-                        if(current.Sell(Convert.ToInt16(over / st.Price), st, out a))
+                        
+                        int num = Convert.ToInt16(over / st.Price);
+                        if (over % st.Price != 0)
+                            num++;
+                        if (current.Sell(num, st, out a))
                         {
                             _cashBalance = a - over;
                         }
@@ -178,6 +207,7 @@ namespace ConsoleApplication1
             UpdateCash();
             Console.WriteLine("You have $" + _totalBalance.ToString("f") + " available.");
             Console.WriteLine("$" + _cashBalance.ToString("f") + " is not invested, $" + _stockBalance.ToString("f") + " is invested into stocks");
+            Console.WriteLine();
         }
 
         /// <summary>
@@ -193,35 +223,9 @@ namespace ConsoleApplication1
             }
             foreach(Portfolio p in portfolios)
             {
-                Console.WriteLine("In your portfolio '" + p.Name + "' you own:");
-                double total = p.Stocks.Count;
-                Stock prev = null;
-                double count = 1;
-                double value = 0;
-                foreach (Stock s in p.Stocks)
-                {
-                    if(s == prev)
-                    {
-                        count++;
-                        value += s.Price;
-                        prev = s;
-                    }
-                    else if(prev == null)
-                    {
-                        prev = s;
-                    }
-                    else
-                    {
-                        Console.WriteLine("$" + value.ToString("F") + " of " + prev.Ticker + " " + prev.Name + " (" + (count / total * 100) + "%)");
-                        count = 1;
-                        value = 0;
-                        prev = s;
-                    }
-                }
-                Console.WriteLine("$" + value.ToString("F") + " of " + prev.Ticker + " " + prev.Name + " (" + ((count) / total * 100) + "%)");
-                count = 0;
-                value = 0;
+                p.CheckPosBal();
             }
+            Console.WriteLine();
         }
 
         /// <summary>
@@ -230,6 +234,7 @@ namespace ConsoleApplication1
         public void GenerateReport()
         {
             double amount = (transactions * TRANSFERFEE) + (trades * TRADEFEE);
+            amount = amount * -1;
             foreach(Portfolio p in portfolios)
             {
                 amount += p.Profit;
@@ -242,6 +247,7 @@ namespace ConsoleApplication1
             {
                 Console.WriteLine("You have lost $" + (amount * -1).ToString("F") + " overall");
             }
+            Console.WriteLine();
         }
 
         /// <summary>

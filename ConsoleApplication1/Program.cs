@@ -31,7 +31,7 @@ namespace ConsoleApplication1
             }
             catch (Exception ex)
             {
-                Console.WriteLine("\n\n");
+                Console.WriteLine("\n");
                 Console.WriteLine(ex.ToString());
                 Console.ReadLine();
             }
@@ -40,7 +40,7 @@ namespace ConsoleApplication1
         /// <summary>
         /// Main menu for the application
         /// </summary>
-        /// <param name="account">User's account being used</param>
+        /// <param name="account">User's account</param>
         static void MainMenu(Account account)
         {
             bool exit = false;
@@ -166,7 +166,6 @@ namespace ConsoleApplication1
                 Console.WriteLine("3. See a Gain/Losses Report");
                 Console.WriteLine("4. Return to Main Menu");
                 Console.Write("Please choose a number (1-4): ");
-                Console.WriteLine();
                 answer = Console.ReadLine();
                 Console.WriteLine();
                 if (answer == "1")
@@ -232,7 +231,6 @@ namespace ConsoleApplication1
                     Console.WriteLine("4. Choose another portfolio");
                     Console.WriteLine("5. Return to Main Menu");
                     Console.Write("Please choose a number (1-5): ");
-                    Console.WriteLine();
                     answer = Console.ReadLine();
                     Console.WriteLine();
                     if (answer == "1")
@@ -329,7 +327,7 @@ namespace ConsoleApplication1
         {
             string answer;
             Random r = new Random();
-            int percentage;
+            double percentage;
             bool exit = false;
             while (!exit)
             {
@@ -352,7 +350,8 @@ namespace ConsoleApplication1
                             percentage += 2;
                         else if (percentage == 0)
                             percentage += 3;
-                        s.Price += (s.Price * percentage / 100);
+                        double newPrice = s.Price + (s.Price * percentage / 100);
+                        s.Price = newPrice;
                         foreach (Portfolio p in account.portfolios)
                         {
                             p.UpdateStock(s, s.Price);
@@ -435,9 +434,10 @@ namespace ConsoleApplication1
                 Console.WriteLine("1. Enter the number of stocks to purchase");
                 Console.WriteLine("2. Enter the amount in dollars to purchase stock represented by ticker");
                 Console.WriteLine("3. Sell a stock");
-                Console.WriteLine("Return to Main Menu");
+                Console.WriteLine("4. Return to Main Menu");
                 Console.Write("Please pick a number (1-4): ");
                 answer = Console.ReadLine();
+                Console.WriteLine();
                 if (answer == "1")
                 {
                     bool valid = false;
@@ -463,7 +463,7 @@ namespace ConsoleApplication1
                     int amount = 0;
                     while (!valid)
                     {
-                        Console.WriteLine("Enter the number of stocks: ");
+                        Console.Write("Enter the number of stocks: ");
                         amount = Convert.ToInt32(Console.ReadLine());
                         if (amount * s.Price > account.CashBalance)
                         {
@@ -484,6 +484,7 @@ namespace ConsoleApplication1
                     account.CashBalance -= (amount * s.Price) + TRADEFEE;
                     account.UpdateCash();
                     account.Trades += 1;
+                    Console.WriteLine();
                 }
                 else if (answer == "2")
                 {
@@ -508,9 +509,10 @@ namespace ConsoleApplication1
                     }
                     double amount = 0;
                     double spent = 0;
+                    valid = false;
                     while (!valid)
                     {
-                        Console.WriteLine("Enter the amount to spend: ");
+                        Console.Write("Enter the amount to spend: ");
                         amount = Convert.ToInt32(Console.ReadLine());
                         if (amount > account.CashBalance)
                         {
