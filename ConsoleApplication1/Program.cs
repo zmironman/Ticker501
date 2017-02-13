@@ -40,7 +40,7 @@ namespace ConsoleApplication1
         /// <summary>
         /// Main menu for the application
         /// </summary>
-        /// <param name="account">User's account</param>
+        /// <param name="account">User's account being used</param>
         static void MainMenu(Account account)
         {
             bool exit = false;
