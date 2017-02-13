@@ -28,6 +28,7 @@ namespace ConsoleApplication1
         public Account(double b)
         {
             _totalBalance = b;
+            _startingBalance = b;
             _cashBalance = b;
             _stockBalance = 0;
             _startingBalance = b;
@@ -329,7 +330,5 @@ namespace ConsoleApplication1
             }
             _totalBalance = _stockBalance + _cashBalance;
         }
-
-        
     }
 }
