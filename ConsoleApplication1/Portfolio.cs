@@ -27,6 +27,17 @@ namespace ConsoleApplication1
         }
 
         /// <summary>
+        /// getter for the profit of the protfolio
+        /// </summary>
+        public double Profit
+        {
+            get
+            {
+                return _profit;
+            }
+        }
+
+        /// <summary>
         /// Buys the number of stocks provided
         /// </summary>
         /// <param name="number">number of stocks to buy</param>
@@ -87,6 +98,7 @@ namespace ConsoleApplication1
                     Stocks.Remove(stock);
                     _boughtPrice.Remove(stock);
                     total += stock.Price;
+                    _balance -= stock.Price;
                 }
                 return false;
             }
@@ -95,6 +107,7 @@ namespace ConsoleApplication1
                 Stocks.Remove(stock);
                 _boughtPrice.Remove(stock);
                 total += stock.Price;
+                _balance -= stock.Price;
             }
             return true;
         }
@@ -117,6 +130,7 @@ namespace ConsoleApplication1
         {
             get
             {
+                UpdateBalance();
                 return _balance;
             }
         }
@@ -138,6 +152,18 @@ namespace ConsoleApplication1
         }
 
         /// <summary>
+        /// updates the balance of the portfolio
+        /// </summary>
+        public void UpdateBalance()
+        {
+            _balance = 0;
+            foreach(Stock s in Stocks)
+            {
+                _balance += s.Price;
+            }
+        }
+
+        /// <summary>
         /// updates the stock with the new price
         /// </summary>
         /// <param name="s">the stock we want to update</param>
@@ -148,6 +174,7 @@ namespace ConsoleApplication1
             {
                 if(s.Name == st.Name)
                 {
+                    _profit += newPrice - st.Price;
                     st.Price = newPrice;
                 }
             }
@@ -216,6 +243,39 @@ namespace ConsoleApplication1
                 }
             }
             return null;
+        }
+
+        /// <summary>
+        /// gets the stock with the name provided
+        /// </summary>
+        /// <param name="name">name of the stock we want</param>
+        /// <returns>the stock with the name of the parameter</returns>
+        public Stock getStockT(string tick)
+        {
+            foreach (Stock s in Stocks)
+            {
+                if (s.Ticker == tick)
+                {
+                    return s;
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// generates a report for the given portfolio
+        /// </summary>
+        public void GenerateReport()
+        {
+            if(_profit < 0)
+            {
+                Console.WriteLine("You have lost $" + _profit * -1);
+            }
+            else
+            {
+                Console.WriteLine("You have lost $" + _profit);
+            }
+            return;
         }
     }
 }

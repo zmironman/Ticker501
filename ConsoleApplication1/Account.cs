@@ -9,12 +9,15 @@ namespace ConsoleApplication1
 {
     class Account
     {
-        static double TRADEFEE = 9.99;
-        static double TRANSFERFEE = 4.99;
+        static public  double TRADEFEE = 9.99;
+        static public double TRANSFERFEE = 4.99;
         static int MAXPORTFOLIOS = 3;
+        private int transactions;
+        private int trades;
         private double _cashBalance;
         private double _stockBalance;
         private double _totalBalance;
+        private double _startingBalance;
         private Portfolio current = new Portfolio(null);
         public IList<Portfolio> portfolios = new List<Portfolio>();
 
@@ -27,6 +30,22 @@ namespace ConsoleApplication1
             _totalBalance = b;
             _cashBalance = b;
             _stockBalance = 0;
+            _startingBalance = b;
+        }
+
+        /// <summary>
+        /// setter for the number of trades
+        /// </summary>
+        public int Trades
+        {
+            get
+            {
+                return trades;
+            }
+            set
+            {
+                trades = value;
+            }
         }
 
         /// <summary>
@@ -37,6 +56,17 @@ namespace ConsoleApplication1
             get
             {
                 return _totalBalance;
+            }
+        }
+
+        /// <summary>
+        /// getter for the starting balance
+        /// </summary>
+        public double Starting
+        {
+            get
+            {
+                return _startingBalance;
             }
         }
 
@@ -74,6 +104,7 @@ namespace ConsoleApplication1
         {
             _cashBalance += (amount - TRANSFERFEE);
             _totalBalance += (amount - TRANSFERFEE);
+            transactions++;
         }
 
         /// <summary>
@@ -132,7 +163,9 @@ namespace ConsoleApplication1
                 else
                 {
                     _cashBalance -= (amount + TRANSFERFEE);
+                    
                 }
+                transactions++;
                 return true;
             }
         }
@@ -191,9 +224,24 @@ namespace ConsoleApplication1
             }
         }
 
-        public void GenerateReport(string start, string end)
+        /// <summary>
+        /// generates the reports after a simulation
+        /// </summary>
+        public void GenerateReport()
         {
-
+            double amount = (transactions * TRANSFERFEE) + (trades * TRADEFEE);
+            foreach(Portfolio p in portfolios)
+            {
+                amount += p.Profit;
+            }
+            if(amount > 0)
+            {
+                Console.WriteLine("You have made $" + amount.ToString("F") + " overall");
+            }
+            else
+            {
+                Console.WriteLine("You have lost $" + (amount * -1).ToString("F") + " overall");
+            }
         }
 
         /// <summary>

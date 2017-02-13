@@ -20,17 +20,21 @@ namespace ConsoleApplication1
         /// <param name="args"></param>
         static void Main(string[] args)
         {
-            //try {
+            try {
                 Console.Write("Please enter a starting balance for the Account: ");
                 double starting = Convert.ToDouble(Console.ReadLine());
                 Account account = new Account(Convert.ToDouble(starting.ToString("F")));
+                Console.Write("Please enter a Ticker File path: ");
+                string file = Console.ReadLine();
+                ReadFile(new StreamReader(file));
                 MainMenu(account);
-            //}
-            //catch(Exception ex)
-            //{
-            //    Console.WriteLine(ex.ToString());
-            //    Console.ReadLine();
-            //}
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("\n\n");
+                Console.WriteLine(ex.ToString());
+                Console.ReadLine();
+            }
         }
 
         /// <summary>
@@ -47,14 +51,15 @@ namespace ConsoleApplication1
                 Console.WriteLine("1. Go to account funds");
                 Console.WriteLine("2. Go to account balance");
                 Console.WriteLine("3. Go to Portfolio");
-                Console.WriteLine("4. Buy a stock");
+                Console.WriteLine("4. Buy/Sell a stock");
                 Console.WriteLine("5. Create Portfolio");
                 Console.WriteLine("6. Delete Portfolio");
                 Console.WriteLine("7. Simulate an event");
-                Console.WriteLine("8. Exit");
-                Console.Write("Please choose a number (1-7): ");
-                Console.WriteLine();
+                Console.WriteLine("8. Show stocks available");
+                Console.WriteLine("9. Exit");
+                Console.Write("Please choose a number (1-9): ");
                 string answer = Console.ReadLine();
+                Console.WriteLine();
                 Console.WriteLine();
                 if (answer == "1")
                 {
@@ -86,6 +91,10 @@ namespace ConsoleApplication1
                 }
                 else if(answer == "8")
                 {
+                    ShowStocks();
+                }
+                else if(answer == "9")
+                {
                     exit = true;
                 }
                 else
@@ -102,36 +111,43 @@ namespace ConsoleApplication1
         static void AccountFunds(Account account)
         {
             string answer;
-            Console.WriteLine("Would you like to:");
-            Console.WriteLine("1. Add funds to the account");
-            Console.WriteLine("2. Withdraw funds from the account");
-            Console.Write("Please choose a number (1-2): ");
-            Console.WriteLine();
-            answer = Console.ReadLine();
-            Console.WriteLine();
-            if (answer == "1")
+            bool exit = false;
+            while (!exit)
             {
-                Console.Write("How much are you depositing: ");
-                account.AddFunds(Convert.ToDouble(Console.ReadLine()));
-                Console.WriteLine("Deposit Successful");
-            }
-            else if (answer == "2")
-            {
-                Console.Write("How much are you withdrawing: ");
-                if (account.Withdraw(Convert.ToDouble(Console.ReadLine())))
+                Console.WriteLine("Would you like to:");
+                Console.WriteLine("1. Add funds to the account");
+                Console.WriteLine("2. Withdraw funds from the account");
+                Console.WriteLine("3. Return to Main Menu");
+                Console.Write("Please choose a number (1-3): ");
+                answer = Console.ReadLine();
+                Console.WriteLine();
+                if (answer == "1")
                 {
-                    Console.WriteLine("Withdraw successful");
+                    Console.Write("How much are you depositing: ");
+                    account.AddFunds(Convert.ToDouble(Console.ReadLine()));
+                    Console.WriteLine("Deposit Successful");
+                }
+                else if (answer == "2")
+                {
+                    Console.Write("How much are you withdrawing: ");
+                    if (account.Withdraw(Convert.ToDouble(Console.ReadLine())))
+                    {
+                        Console.WriteLine("Withdraw successful");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid answer.");
+                    }
+                }
+                else if(answer == "3")
+                {
+                    return;
                 }
                 else
                 {
-                    Console.WriteLine("Invalid answer.");
+                    Console.WriteLine("Invalid Answer.");
                 }
             }
-            else
-            {
-                Console.WriteLine("Invalid Answer.");
-            }
-            MainMenu(account);
         }
 
         /// <summary>
@@ -141,34 +157,39 @@ namespace ConsoleApplication1
         static void AccountBalance(Account account)
         {
             string answer;
-            Console.WriteLine("Would you like to:");
-            Console.WriteLine("1. See the account balance");
-            Console.WriteLine("2. see the cash positions balance");
-            Console.WriteLine("3. See a Gain/Losses Report");
-            Console.Write("Please choose a number (1-3): ");
-            Console.WriteLine();
-            answer = Console.ReadLine();
-            Console.WriteLine();
-            if (answer == "1")
+            bool exit = false;
+            while (!exit)
             {
-                account.CheckBal();
-            }
-            else if (answer == "2")
-            {
-                account.CheckPosBal();
-            }
-            else if (answer == "3")
-            {
-                Console.Write("Please enter a start date: ");
-                string start = Console.ReadLine();
-                Console.Write("Please enter an end date: ");
-                string end = Console.ReadLine();
+                Console.WriteLine("Would you like to:");
+                Console.WriteLine("1. See the account balance");
+                Console.WriteLine("2. see the cash positions balance");
+                Console.WriteLine("3. See a Gain/Losses Report");
+                Console.WriteLine("4. Return to Main Menu");
+                Console.Write("Please choose a number (1-4): ");
                 Console.WriteLine();
-                account.GenerateReport(start, end);
-            }
-            else
-            {
-                Console.WriteLine("Invalid Answer.");
+                answer = Console.ReadLine();
+                Console.WriteLine();
+                if (answer == "1")
+                {
+                    account.CheckBal();
+                }
+                else if (answer == "2")
+                {
+                    account.CheckPosBal();
+                }
+                else if (answer == "3")
+                {
+                    Console.WriteLine();
+                    account.GenerateReport();
+                }
+                else if (answer == "4")
+                {
+                    return;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid Answer.");
+                }
             }
         }
 
@@ -179,59 +200,66 @@ namespace ConsoleApplication1
         static void PortfolioBalance(Account account)
         {
             bool exit = false;
+            bool exit2 = false;
             if (account.portfolios.Count < 1)
             {
                 Console.WriteLine("You dont have any portfolios");
                 return;
             }
-            string answer;
-            foreach (Portfolio po in account.portfolios)
+            while (!exit2)
             {
-                Console.WriteLine(po.Name);
-            }
-            Console.Write("Please choose a portfolio(Case sensitive): ");
-            answer = Console.ReadLine();
-            Console.WriteLine();
-            Portfolio p = account.GetPortfolio(answer);
-            if (p.Name == "error")
-            {
-                Console.WriteLine("Invalid Portfolio");
-                return;
-            }
-            while (!exit)
-            {
-                Console.WriteLine("Would you like to:");
-                Console.WriteLine("1. See the portfolio balance");
-                Console.WriteLine("2. see the cash and positions balance");
-                Console.WriteLine("3. See a Gain/Losses Report (unavailable)");
-                Console.WriteLine("4. Go to Main Menu");
-                Console.Write("Please choose a number (1-4): ");
-                Console.WriteLine();
+                string answer;
+                foreach (Portfolio po in account.portfolios)
+                {
+                    Console.WriteLine(po.Name);
+                }
+                Console.Write("Please choose a portfolio(Case sensitive): ");
                 answer = Console.ReadLine();
                 Console.WriteLine();
-                if (answer == "1")
+                Portfolio p = account.GetPortfolio(answer);
+                if (p.Name == "error")
                 {
-                    p.CheckBal(account.Total);
+                    Console.WriteLine("Invalid Portfolio");
+                    return;
                 }
-                else if (answer == "2")
+                exit = false;
+                while (!exit)
                 {
-                    p.CheckPosBal();
-                }
-                //else if (answer == "3")
-                //{
-                //    Console.Write("Please enter a start date: ");
-                //    string start = Console.ReadLine();
-                //    Console.Write("Please enter an end date: ");
-                //    string end = Console.ReadLine();
-                //    p.GenerateReport(start, end);
-                //}
-                else if(answer == "4")
-                {
-                    exit = true;
-                }
-                else
-                {
-                    Console.WriteLine("Invalid Answer.");
+                    Console.WriteLine("Would you like to:");
+                    Console.WriteLine("1. See the portfolio balance");
+                    Console.WriteLine("2. see the cash and positions balance");
+                    Console.WriteLine("3. See a Gain/Losses Report (unavailable)");
+                    Console.WriteLine("4. Choose another portfolio");
+                    Console.WriteLine("5. Return to Main Menu");
+                    Console.Write("Please choose a number (1-5): ");
+                    Console.WriteLine();
+                    answer = Console.ReadLine();
+                    Console.WriteLine();
+                    if (answer == "1")
+                    {
+                        p.CheckBal(account.Total);
+                    }
+                    else if (answer == "2")
+                    {
+                        p.CheckPosBal();
+                    }
+                    else if (answer == "3")
+                    {
+                        p.GenerateReport();
+                    }
+                    else if (answer == "4")
+                    {
+                        exit = true;
+                    }
+                    else if (answer == "5")
+                    {
+                        exit2 = true;
+                        exit = true;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid Answer.");
+                    }
                 }
             }
         }
@@ -268,8 +296,13 @@ namespace ConsoleApplication1
         /// <param name="account">user's account</param>
         static void DeletePortfolio(Account account)
         {
+            Console.WriteLine();
             if (account.portfolios.Count > 0)
-            {
+            { 
+                foreach(Portfolio p in account.portfolios)
+                {
+                    Console.WriteLine(p.Name);
+                }
                 Console.Write("Please enter a name for the portfolio that is to be deleted: ");
                 string answer = Console.ReadLine();
                 Console.WriteLine();
@@ -297,67 +330,76 @@ namespace ConsoleApplication1
             string answer;
             Random r = new Random();
             int percentage;
-            Console.WriteLine("Please choose a volatility");
-            Console.WriteLine("1. High(3% - 15%)");
-            Console.WriteLine("2. Medium(2% - 8%");
-            Console.WriteLine("3. Low(1% - 4%)");
-            Console.Write("Please choose a number (1-3): ");
-            answer = Console.ReadLine();
-            Console.WriteLine();
-            if (answer == "1")
+            bool exit = false;
+            while (!exit)
             {
-                foreach(Stock s in Stocks)
+                Console.WriteLine("Please choose a volatility");
+                Console.WriteLine("1. High(3% - 15%)");
+                Console.WriteLine("2. Medium(2% - 8%");
+                Console.WriteLine("3. Low(1% - 4%)");
+                Console.WriteLine("4. Return to Main Menu");
+                Console.Write("Please choose a number (1-4): ");
+                answer = Console.ReadLine();
+                Console.WriteLine();
+                if (answer == "1")
                 {
-                    percentage = r.Next(0, 30) - 15;
-                    if (percentage > -3 && percentage < 0)
-                        percentage -= 2;
-                    else if (percentage > 0 && percentage < 3)
-                        percentage += 2;
-                    else if (percentage == 0)
-                        percentage += 3;
-                    s.Price += (s.Price * percentage / 100);
-                    foreach (Portfolio p in account.portfolios)
+                    foreach (Stock s in Stocks)
                     {
-                        p.UpdateStock(s, s.Price);
+                        percentage = r.Next(0, 30) - 15;
+                        if (percentage > -3 && percentage < 0)
+                            percentage -= 2;
+                        else if (percentage > 0 && percentage < 3)
+                            percentage += 2;
+                        else if (percentage == 0)
+                            percentage += 3;
+                        s.Price += (s.Price * percentage / 100);
+                        foreach (Portfolio p in account.portfolios)
+                        {
+                            p.UpdateStock(s, s.Price);
+                        }
                     }
-                }
 
-            }
-            else if (answer == "2")
-            {
-                foreach (Stock s in Stocks)
+                }
+                else if (answer == "2")
                 {
-                    percentage = r.Next(0, 16) - 8;
-                    if (percentage > -2 && percentage < 0)
-                        percentage -= 1;
-                    else if (percentage > 0 && percentage < 2)
-                        percentage += 1;
-                    else if (percentage == 0)
-                        percentage += 2;
-                    s.Price += (s.Price * percentage / 100);
-                    foreach(Portfolio p in account.portfolios)
+                    foreach (Stock s in Stocks)
                     {
-                        p.UpdateStock(s, s.Price);
+                        percentage = r.Next(0, 16) - 8;
+                        if (percentage > -2 && percentage < 0)
+                            percentage -= 1;
+                        else if (percentage > 0 && percentage < 2)
+                            percentage += 1;
+                        else if (percentage == 0)
+                            percentage += 2;
+                        s.Price += (s.Price * percentage / 100);
+                        foreach (Portfolio p in account.portfolios)
+                        {
+                            p.UpdateStock(s, s.Price);
+                        }
                     }
                 }
-            }
-            else if (answer == "3")
-            {
-                foreach (Stock s in Stocks)
+                else if (answer == "3")
                 {
-                    percentage = r.Next(0, 8) - 4;
-                    if (percentage == 0)
-                        percentage += 1;
-                    s.Price += (s.Price * percentage / 100);
-                    foreach (Portfolio p in account.portfolios)
+                    foreach (Stock s in Stocks)
                     {
-                        p.UpdateStock(s, s.Price);
+                        percentage = r.Next(0, 8) - 4;
+                        if (percentage == 0)
+                            percentage += 1;
+                        s.Price += (s.Price * percentage / 100);
+                        foreach (Portfolio p in account.portfolios)
+                        {
+                            p.UpdateStock(s, s.Price);
+                        }
                     }
                 }
-            }
-            else
-            {
-                Console.WriteLine("Invalid Answer.");
+                else if(answer == "4")
+                {
+                    return;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid Answer.");
+                }
             }
         }
 
@@ -372,9 +414,6 @@ namespace ConsoleApplication1
                 Console.WriteLine("You dont have any portfolios");
                 return;
             }
-            Console.Write("Please enter a Ticker File path: ");
-            string file = Console.ReadLine();
-            ReadFile(file);
             string answer;
             foreach (Portfolio po in account.portfolios)
             {
@@ -389,111 +428,188 @@ namespace ConsoleApplication1
                 Console.WriteLine("Invalid Portfolio");
                 return;
             }
-            Console.WriteLine("Either:");
-            Console.WriteLine("1. Enter the number of stocks to purchase");
-            Console.WriteLine("2. Enter the amount in dollars to purchase stock represented by ticker");
-            answer = Console.ReadLine();
-            if(answer == "1")
+            bool exit = false;
+            while (!exit)
             {
-                bool valid = false;
-                Stock s = null;
-                while (!valid)
+                Console.WriteLine("Would you like to: ");
+                Console.WriteLine("1. Enter the number of stocks to purchase");
+                Console.WriteLine("2. Enter the amount in dollars to purchase stock represented by ticker");
+                Console.WriteLine("3. Sell a stock");
+                Console.WriteLine("Return to Main Menu");
+                Console.Write("Please pick a number (1-4): ");
+                answer = Console.ReadLine();
+                if (answer == "1")
                 {
-                    Console.WriteLine("Enter the Ticker: ");
-                    string tick = Console.ReadLine();                    
-                    foreach (Stock st in Stocks)
+                    bool valid = false;
+                    Stock s = null;
+                    while (!valid)
                     {
-                        if (st.Ticker == tick)
+                        Console.Write("Enter the Ticker: ");
+                        string tick = Console.ReadLine();
+                        foreach (Stock st in Stocks)
                         {
-                            s = st;
+                            if (st.Ticker == tick)
+                            {
+                                s = st;
+                                valid = true;
+                            }
+                        }
+                        if (!valid)
+                        {
+                            Console.WriteLine("Invalid Ticker, please try again");
+                        }
+                    }
+                    valid = false;
+                    int amount = 0;
+                    while (!valid)
+                    {
+                        Console.WriteLine("Enter the number of stocks: ");
+                        amount = Convert.ToInt32(Console.ReadLine());
+                        if (amount * s.Price > account.CashBalance)
+                        {
+                            valid = false;
+                            Console.WriteLine("Insufficent funds");
+                        }
+                        else if (amount < 1)
+                        {
+                            valid = false;
+                            Console.WriteLine("Invalid number");
+                        }
+                        else
+                        {
                             valid = true;
                         }
                     }
-                    if (!valid)
-                    {
-                        Console.WriteLine("Invalid Ticker, please try again");
-                    }
+                    p.BuyNumber(amount, s);
+                    account.CashBalance -= (amount * s.Price) + TRADEFEE;
+                    account.UpdateCash();
+                    account.Trades += 1;
                 }
-                valid = false;
-                int amount = 0;
-                while (!valid)
+                else if (answer == "2")
                 {
-                    Console.WriteLine("Enter the number of stocks: ");
-                    amount = Convert.ToInt32(Console.ReadLine());
-                    if (amount * s.Price > account.CashBalance)
+                    bool valid = false;
+                    Stock s = null;
+                    while (!valid)
                     {
-                        valid = false;
-                        Console.WriteLine("Insufficent funds");
-                    }
-                    else if(amount < 1)
-                    {
-                        valid = false;
-                        Console.WriteLine("Invalid number");
-                    }
-                    else
-                    {
-                        valid = true;
-                    }
-                }
-                p.BuyNumber(amount, s);
-                account.CashBalance -= (amount * s.Price) + TRADEFEE;
-                account.UpdateCash();
-            }
-            else if (answer == "2")
-            {
-                bool valid = false;
-                Stock s = null;
-                while (!valid)
-                {
-                    Console.WriteLine("Enter the Ticker: ");
-                    string tick = Console.ReadLine();
-                    foreach (Stock st in Stocks)
-                    {
-                        if (st.Ticker == tick)
+                        Console.Write("Enter the Ticker: ");
+                        string tick = Console.ReadLine();
+                        foreach (Stock st in Stocks)
                         {
-                            s = st;
+                            if (st.Ticker == tick)
+                            {
+                                s = st;
+                                valid = true;
+                            }
+                        }
+                        if (!valid)
+                        {
+                            Console.WriteLine("Invalid Ticker, please try again");
+                        }
+                    }
+                    double amount = 0;
+                    double spent = 0;
+                    while (!valid)
+                    {
+                        Console.WriteLine("Enter the amount to spend: ");
+                        amount = Convert.ToInt32(Console.ReadLine());
+                        if (amount > account.CashBalance)
+                        {
+                            valid = false;
+                            Console.WriteLine("Insufficent funds");
+                        }
+                        else if (amount < s.Price)
+                        {
+                            valid = false;
+                            Console.WriteLine("Stock price is more expensive");
+                        }
+                        else
+                        {
                             valid = true;
                         }
                     }
-                    if (!valid)
-                    {
-                        Console.WriteLine("Invalid Ticker, please try again");
-                    }
+                    p.BuyValue(amount, s, out spent);
+                    account.CashBalance -= spent;
+                    account.UpdateCash();
+                    account.Trades += 1;
                 }
-                double amount = 0;
-                double spent = 0;
-                while (!valid)
+                else if (answer == "3")
                 {
-                    Console.WriteLine("Enter the amount to spend: ");
-                    amount = Convert.ToInt32(Console.ReadLine());
-                    if (amount > account.CashBalance)
+                    if (p.Stocks.Count > 0)
                     {
-                        valid = false;
-                        Console.WriteLine("Insufficent funds");
-                    }
-                    else if (amount < s.Price)
-                    {
-                        valid = false;
-                        Console.WriteLine("Stock price is more expensive");
+                        Console.WriteLine("You have: ");
+                        Stock prev = p.Stocks[0];
+                        int count = 0;
+                        int end = 0;
+                        foreach (Stock s in p.Stocks)
+                        {
+                            if (s.Name == prev.Name)
+                            {
+                                count++;
+                            }
+                            else
+                            {
+                                Console.WriteLine(count + " stocks of " + prev.Name + "(" + prev.Ticker + ")");
+                                count = 0;
+                                prev = s;
+                            }
+                            end++;
+                        }
+                        Console.WriteLine(count + 1 + " stocks of " + prev.Name + "(" + prev.Ticker + ")");
+                        Console.Write("Please enter a ticker to sell: ");
+                        string tick = Console.ReadLine();
+                        Console.Write("Please enter a number to sell: ");
+                        int num = Convert.ToInt32(Console.ReadLine());
+                        double value = 0;
+                        Stock stock = p.getStockT(tick);
+                        if (stock == null)
+                        {
+                            Console.WriteLine("You don't have any of that stock in this portfolio.");
+                        }
+                        else if (p.Sell(num, stock, out value))
+                        {
+                            Console.WriteLine("You sold " + num + " of your " + p.getStockT(tick).Name + " stocks for $" + value.ToString("f"));
+                        }
+                        else
+                        {
+                            Console.WriteLine("You sold all of your " + p.getStockT(tick).Name + " stocks for $" + value.ToString("f"));
+                        }
+                        account.CashBalance += value - 9.99;
+                        account.Trades += 1;
+                        return;
                     }
                     else
                     {
-                        valid = true;
+                        Console.WriteLine("You don't have any stocks in this portfolio");
+                        return;
                     }
                 }
-                p.BuyValue(amount, s, out spent);
-                account.CashBalance -= spent;
-                account.UpdateCash();
+                else if(answer == "4")
+                {
+                    exit = true;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid input");
+                }
             }
         }
+
+        static void ShowStocks()
+        {
+            foreach(Stock s in Stocks)
+            {
+                Console.WriteLine(s.Ticker + ": " + s.Name + " $" + s.Price.ToString("f"));
+            }
+        }
+
+
         /// <summary>
         /// Reads a file and records the stocks at that time
         /// </summary>
         /// <param name="file">name of the file being read in</param>
-        static void ReadFile(string file)
+        static void ReadFile(StreamReader sr)
         {
             Stocks.Clear();
-            StreamReader sr = new StreamReader(file);
             StringBuilder sb = new StringBuilder();
             string tempTicker = null;
             string tempName = null;
